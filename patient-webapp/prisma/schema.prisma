@@ -1,0 +1,95 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model Doctor {
+    id        String     @id @map("_id") @default(auto()) @db.ObjectId
+    name String
+    email     String     @unique
+    image     String?       
+    operations Operation[] @relation("DoctorOperations")
+}
+
+model Patient {
+    id           String   @id @map("_id") @default(auto()) @db.ObjectId
+    firstName    String
+    lastName     String
+    email        String   @unique
+    operations   Operation[] @relation("PatientOperations")
+}
+
+model Operation {
+    id                 String   @id @map("_id") @default(auto()) @db.ObjectId
+    procedureName      String
+    procedureDate      DateTime
+    procedureDescription String
+    patientInformation PatientInformation
+    prescriptions      String[]
+    postOpInstructions String
+    estRecoveryDate    DateTime 
+    recoveryTimeline   RecoveryTimeline[]
+    notes              String
+    doctorId           String   @db.ObjectId
+    patientId          String   @db.ObjectId
+    chats              Chat[]
+    doctor             Doctor  @relation(fields: [doctorId], references: [id], name: "DoctorOperations")
+    patient            Patient @relation(fields: [patientId], references: [id], name: "PatientOperations")
+}
+
+type PatientInformation {
+    age    Int
+    height Int
+    weight Int
+    gender String
+}
+
+type RecoveryTimeline {
+    date        DateTime 
+    description String
+}
+
+type Chat {
+    id                    String   @map("_id") @db.ObjectId
+    title                 String
+    messages              Message[]
+    numUnverifiedMessages Int
+    oldestUnverifiedMessage DateTime? // Optional, incase there are no unverified messages
+}
+
+enum VerificationStatus {
+    VERIFIED
+    AMENDED
+    UNVERIFIED
+}
+
+enum SenderType {
+    AI
+    PATIENT
+}
+
+type Message {
+    id                  String   @map("_id") @db.ObjectId
+    text                String
+    sender              SenderType
+    timestamp           DateTime 
+    readTimestamp       DateTime? 
+    verificationStatus  VerificationStatus? // Optional, only for AI messages
+    doctorNote          String?             // Optional, only for AI messages
+    readByPatient       Boolean?            
+}
+
+// Example Structures of each type of message 
+// type AIMessage extends Message {
+//     verificationStatus  VerificationStatus // Only for AI messages
+//     doctorNote          String?            
+//     readByPatient       Boolean?           
+// }
+
+// type PatientMessage extends Message {
+//     readByDoctor        Boolean?
+// }

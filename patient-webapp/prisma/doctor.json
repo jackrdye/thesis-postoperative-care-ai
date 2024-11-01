@@ -1,0 +1,9 @@
+{
+    "_id": {
+      "$oid": "60c72b2f9b1d8b3a4c8e4d1e"
+    },
+    "name": "Dr. Smith",
+    "email": "drsmith@example.com",
+    "image": "https://example.com/drsmith.jpg",
+    "operations": []
+  }
